@@ -1,20 +1,15 @@
-
+import 'package:axolon_container/controller/ui%20controls/splash_screen_controller.dart';
 import 'package:axolon_container/utils/constants/asset_paths.dart';
 import 'package:axolon_container/utils/constants/colors.dart';
 import 'package:axolon_container/controller/ui%20controls/package_info_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends StatelessWidget {
   SplashScreen({Key? key}) : super(key: key);
 
-  @override
-  State<SplashScreen> createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen> {
   final packageInfoCOntroller = Get.put(PackageInfoController());
-
+  final splashScreenController = Get.put(SplashScreenController());
   @override
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
@@ -49,11 +44,5 @@ class _SplashScreenState extends State<SplashScreen> {
         ],
       ),
     );
-  }
-
-   enterApp() async {
-    await Future.delayed(Duration(seconds: 3), () {
-      Get.offAllNamed('/login');
-    });
   }
 }
