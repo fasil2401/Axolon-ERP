@@ -23,6 +23,7 @@ class DbHelper {
   _onCreate(Database db) async {
     await db.execute('''
     CREATE TABLE ${ConnectionModelImpNames.tableName}(
+        ${ConnectionModelImpNames.connectionName} TEXT,
        ${ConnectionModelImpNames.serverIp} TEXT,
         ${ConnectionModelImpNames.webPort} TEXT,
         ${ConnectionModelImpNames.httpPort} TEXT,
@@ -35,6 +36,7 @@ class DbHelper {
   Future<int> insertSettings(ConnectionModel setting) async {
     Database? db = await DbHelper._database;
     return await db!.insert(ConnectionModelImpNames.tableName, {
+      ConnectionModelImpNames.connectionName: setting.connectionName,
       ConnectionModelImpNames.serverIp: setting.serverIp,
       ConnectionModelImpNames.webPort: setting.webPort,
       ConnectionModelImpNames.httpPort: setting.httpPort,

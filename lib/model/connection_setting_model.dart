@@ -1,5 +1,6 @@
 
 class ConnectionModelImpNames {
+  static const String connectionName = 'connectionName';
   static const String serverIp = 'serverIp';
   static const String webPort = 'webPort';
   static const String httpPort = 'httpPort';
@@ -12,6 +13,7 @@ class ConnectionModelImpNames {
 
 
 class ConnectionModel {
+  String? connectionName;
   String? serverIp;
   String? webPort;
   String? httpPort;
@@ -19,6 +21,7 @@ class ConnectionModel {
   String? databaseName;
 
   ConnectionModel({
+    this.connectionName,
     this.serverIp,
     this.webPort,
     this.httpPort,
@@ -28,6 +31,7 @@ class ConnectionModel {
 
   Map<String, dynamic> toMap() {
     return {
+      'connectionName': connectionName,
       'serverIp': serverIp,
       'webPort': webPort,
       'httpPort': httpPort,
@@ -37,6 +41,7 @@ class ConnectionModel {
   }
 
   ConnectionModel.fromMap(Map<String, dynamic> map) {
+    this.connectionName = map['connectionName'];
     this.serverIp = map['serverIp'];
     this.webPort = map['webPort'];
     this.httpPort = map['httpPort'];

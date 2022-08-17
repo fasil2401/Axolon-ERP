@@ -4,6 +4,7 @@ import 'package:axolon_container/controller/ui%20controls/password_controller.da
 import 'package:axolon_container/model/connection_setting_model.dart';
 import 'package:axolon_container/utils/constants/asset_paths.dart';
 import 'package:axolon_container/utils/constants/colors.dart';
+import 'package:axolon_container/utils/shared_preferences/shared_preferneces.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -22,6 +23,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
 
   final localSettingsController = Get.put(LocalSettingsController());
 
+  final _connectiionNameController = TextEditingController();
   final _serverIpController = TextEditingController();
   final _webPortController = TextEditingController();
   final _databaseNameController = TextEditingController();
@@ -32,11 +34,13 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
   void initState() {
     super.initState();
     getLocalSettings();
+    prefillData();
   }
 
   var settingsList = [
     ConnectionModel(
-        serverIp: 'Select Settings',
+        connectionName: 'Select Settings',
+        serverIp: '',
         webPort: '',
         httpPort: '',
         erpPort: '',
@@ -57,17 +61,39 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
 
   selectSettings(ConnectionModel settings) async {
     setState(() {
+      _connectiionNameController.text = settings.connectionName!;
       _serverIpController.text = settings.serverIp!;
       _webPortController.text = settings.webPort!;
       _databaseNameController.text = settings.databaseName!;
       _httpPortController.text = settings.httpPort!;
       _erpPortController.text = settings.erpPort!;
     });
+    await connectionSettingController
+        .getConnectionName(settings.connectionName!);
     await connectionSettingController.getServerIp(settings.serverIp!);
     await connectionSettingController.getWebPort(settings.webPort!);
     await connectionSettingController.getDatabaseName(settings.databaseName!);
     await connectionSettingController.getHttpPort(settings.httpPort!);
     await connectionSettingController.getErpPort(settings.erpPort!);
+    print(connectionSettingController.serverIp.value);
+  }
+
+  prefillData() async {
+    String connectionName =
+        await UserSimplePreferences.getConnectionName() ?? '';
+    String serverIp = await UserSimplePreferences.getServerIp() ?? '';
+    String webPort = await UserSimplePreferences.getWebPort() ?? '';
+    String databaseName = await UserSimplePreferences.getDatabase() ?? '';
+    String httpPort = await UserSimplePreferences.getHttpPort() ?? '';
+    String erpPort = await UserSimplePreferences.getErpPort() ?? '';
+    setState(() {
+      _connectiionNameController.text = connectionName;
+      _serverIpController.text = serverIp;
+      _webPortController.text = webPort;
+      _databaseNameController.text = databaseName;
+      _httpPortController.text = httpPort;
+      _erpPortController.text = erpPort;
+    });
   }
 
   @override
@@ -138,7 +164,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                       /// Text Fields
                       Container(
                         margin: const EdgeInsets.symmetric(horizontal: 25),
-                        height: height * 0.35,
+                        height: height * 0.4,
                         width: MediaQuery.of(context).size.width,
                         decoration: BoxDecoration(
                             color: Colors.white,
@@ -184,7 +210,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                                     (item) => DropdownMenuItem(
                                       value: item,
                                       child: Text(
-                                        item.serverIp!,
+                                        item.connectionName!,
                                         style: const TextStyle(
                                           fontSize: 16,
                                         ),
@@ -193,13 +219,36 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                                   )
                                   .toList(),
                               onChanged: (value) async {
-                                await connectionSettingController
-                                    .checkIsLocalSettings();
                                 var settings = value as ConnectionModel;
                                 selectSettings(settings);
                               },
                               onSaved: (value) {},
                             ),
+                            TextField(
+                              controller: _connectiionNameController,
+                              style: TextStyle(fontSize: 15),
+                              decoration: InputDecoration(
+                                contentPadding:
+                                    EdgeInsets.symmetric(horizontal: 10),
+                                border: InputBorder.none,
+                                label: Text(
+                                  'Connection Name',
+                                  style: TextStyle(
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                                isCollapsed: false,
+                                hintStyle: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              onChanged: (value) {
+                                connectionSettingController
+                                    .getConnectionName(value);
+                              },
+                            ),
+                            Divider(color: Colors.black54, height: 1),
                             TextField(
                               controller: _serverIpController,
                               style: TextStyle(fontSize: 15),
@@ -246,8 +295,6 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                               ),
                               onChanged: (value) async {
                                 await connectionSettingController
-                                    .checkIsLocal();
-                                await connectionSettingController
                                     .getWebPort(value);
                               },
                             ),
@@ -272,8 +319,6 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                                 ),
                               ),
                               onChanged: (value) async {
-                                await connectionSettingController
-                                    .checkIsLocal();
                                 await connectionSettingController
                                     .getDatabaseName(value);
                               },
@@ -303,8 +348,6 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                                     ),
                                     onChanged: (value) async {
                                       await connectionSettingController
-                                          .checkIsLocal();
-                                      await connectionSettingController
                                           .getErpPort(value);
                                     },
                                   ),
@@ -331,8 +374,6 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                                       ),
                                     ),
                                     onChanged: (value) async {
-                                      await connectionSettingController
-                                          .checkIsLocal();
                                       await connectionSettingController
                                           .getHttpPort(value);
                                     },
@@ -409,8 +450,10 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: ElevatedButton(
-                                onPressed: () {
-                                  connectionSettingController.saveSettings();
+                                onPressed: () async {
+                                  await setData();
+                                  connectionSettingController
+                                      .saveSettings(settingsList);
                                 },
                                 style: ElevatedButton.styleFrom(
                                   primary: AppColors.primary,
@@ -434,30 +477,17 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
           ],
         ),
       ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      // floatingActionButton: Row(
-      //   mainAxisAlignment: MainAxisAlignment.end,
-      //   // crossAxisAlignment: CrossAxisAlignment.center,
-      //   children: [
-      //     Text(
-      //       'Connection Settings',
-      //       style: TextStyle(
-      //           fontWeight: FontWeight.w400, color: AppColors.mutedColor),
-      //     ),
-      //     SizedBox(
-      //       width: 10,
-      //     ),
-      //     FloatingActionButton(
-      //       onPressed: () {},
-      //       elevation: 2,
-      //       backgroundColor: AppColors.primary,
-      //       child: Icon(
-      //         Icons.settings,
-      //         color: Colors.white,
-      //       ),
-      //     ),
-      //   ],
-      // ),
     );
+  }
+
+  setData() async {
+    await connectionSettingController
+        .getConnectionName(_connectiionNameController.text);
+    await connectionSettingController.getServerIp(_serverIpController.text);
+    await connectionSettingController.getWebPort(_webPortController.text);
+    await connectionSettingController
+        .getDatabaseName(_databaseNameController.text);
+    await connectionSettingController.getErpPort(_erpPortController.text);
+    await connectionSettingController.getHttpPort(_httpPortController.text);
   }
 }

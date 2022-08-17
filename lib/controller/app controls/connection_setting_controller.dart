@@ -14,12 +14,17 @@ class ConnectionSettingController extends GetxController {
 
   final localSettingsController = Get.put(LocalSettingsController());
 
+  var connectionName = ''.obs;
   var serverIp = ''.obs;
   var webPort = ''.obs;
   var databaseName = ''.obs;
   var httpPort = ''.obs;
   var erpPort = ''.obs;
   var isLocalSettings = false.obs;
+
+  getConnectionName(String connectionName) {
+    this.connectionName.value = connectionName;
+  }
 
   getServerIp(String serverIp) {
     this.serverIp.value = serverIp;
@@ -41,14 +46,8 @@ class ConnectionSettingController extends GetxController {
     this.erpPort.value = erpPort;
   }
 
-  checkIsLocal(){
-    isLocalSettings.value = false;
-  }
-  checkIsLocalSettings() {
-    isLocalSettings.value = true;
-  }
-
-  saveSettings() async {
+  saveSettings(List<ConnectionModel> list) async {
+    await UserSimplePreferences.setConnectionName(connectionName.value);
     await UserSimplePreferences.setServerIp(serverIp.value);
     await UserSimplePreferences.setWebPort(webPort.value);
     await UserSimplePreferences.setDatabase(databaseName.value);
@@ -56,59 +55,70 @@ class ConnectionSettingController extends GetxController {
     await UserSimplePreferences.setErpPort(erpPort.value);
     await UserSimplePreferences.setConnection('true');
     // goToLogin();
-    getConfirmation();
+    getConfirmation(list);
   }
 
-  getConfirmation() async {
-    if(!isLocalSettings.value) {
-      Get.defaultDialog(
-      title: '',
-      titlePadding: EdgeInsets.zero,
-      content: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Text('Save This Settings For Next Time ?',
-                textAlign: TextAlign.start,
-                style: TextStyle(color: AppColors.primary)),
-          ),
-        ],
-      ),
-      actions: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            TextButton(
-              child: Text('No', style: TextStyle(color: AppColors.mutedColor)),
-              onPressed: () {
-                // saveSettings();
-                // Get.back();
-                goToLogin();
-              },
-            ),
-            TextButton(
-              child: Text('Yes', style: TextStyle(color: AppColors.primary)),
-              onPressed: () async {
-                await localSettingsController.addLocalSettings(
-                    element: ConnectionModel(
-                        serverIp: serverIp.value,
-                        webPort: webPort.value,
-                        databaseName: databaseName.value,
-                        httpPort: httpPort.value,
-                        erpPort: erpPort.value
-                    ));
-                // Get.back();
-                goToLogin();
-              },
-            ),
-          ],
-        ),
-      ],
-    );
-    }
-    else {
+  getConfirmation(List<ConnectionModel> list) async {
+    list.forEach((element) {
+      if (element.connectionName == connectionName.value) {
+        isLocalSettings.value = true;
+      }
+    });
+    if (isLocalSettings.value == false) {
+      await localSettingsController.addLocalSettings(
+        element: ConnectionModel(
+            connectionName: connectionName.value,
+            serverIp: serverIp.value,
+            webPort: webPort.value,
+            databaseName: databaseName.value,
+            httpPort: httpPort.value,
+            erpPort: erpPort.value),
+      );
+      goToLogin();
+    } else {
       goToLogin();
     }
+    // if (!isLocalSettings.value) {
+    //   Get.defaultDialog(
+    //     title: '',
+    //     titlePadding: EdgeInsets.zero,
+    //     content: Row(
+    //       children: [
+    //         Padding(
+    //           padding: const EdgeInsets.symmetric(horizontal: 8.0),
+    //           child: Text('Save This Settings For Next Time ?',
+    //               textAlign: TextAlign.start,
+    //               style: TextStyle(color: AppColors.primary)),
+    //         ),
+    //       ],
+    //     ),
+    //     actions: [
+    //       Row(
+    //         mainAxisAlignment: MainAxisAlignment.end,
+    //         children: [
+    //           TextButton(
+    //             child:
+    //                 Text('No', style: TextStyle(color: AppColors.mutedColor)),
+    //             onPressed: () {
+    //               // saveSettings();
+    //               // Get.back();
+    //               goToLogin();
+    //             },
+    //           ),
+    //           TextButton(
+    //             child: Text('Yes', style: TextStyle(color: AppColors.primary)),
+    //             onPressed: () async {
+    //               // Get.back();
+    //               goToLogin();
+    //             },
+    //           ),
+    //         ],
+    //       ),
+    //     ],
+    //   );
+    // } else {
+
+    // }
   }
 
   goToLogin() {
