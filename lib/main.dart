@@ -1,3 +1,4 @@
+import 'package:axolon_container/services/db_helper/db_helper.dart';
 import 'package:axolon_container/utils/Routes/route_manger.dart';
 import 'package:axolon_container/utils/Theme/theme_provider.dart';
 import 'package:axolon_container/utils/shared_preferences/shared_preferneces.dart';
@@ -6,6 +7,7 @@ import 'package:get/get.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
+  await DbHelper().database;
   await UserSimplePreferences.init();
   runApp(const MyApp());
 }

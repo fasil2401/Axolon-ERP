@@ -11,6 +11,7 @@ class LoginController extends GetxController {
     super.onInit();
   }
 
+  var isLoading = false.obs;
   var userName = ''.obs;
   var password = ''.obs;
   var res = 0.obs;
@@ -56,12 +57,13 @@ class LoginController extends GetxController {
   getLogin() async {
     await genearateApi();
     try {
-      Get.defaultDialog(
-        title: "Please Wait",
-        content: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      // Get.defaultDialog(
+      //   title: "Please Wait",
+      //   content: Center(
+      //     child: CircularProgressIndicator(),
+      //   ),
+      // );
+      isLoading.value = true;
       var feedback = await RemoteServicesLogin().getLogin(url, data);
       if (feedback != null) {
         res.value = feedback.res;
@@ -72,29 +74,19 @@ class LoginController extends GetxController {
       }
     } finally {
       if (res.value == 1) {
+        isLoading.value = false;
+        await UserSimplePreferences.setLogin('true');
         getWebView();
       } else {
-        Get.back();
+        // Get.back();
+        isLoading.value = false;
         Get.snackbar('Error', 'No User Found');
       }
     }
   }
 
   getWebView() async {
-    await generateWebUrl();
     print(webUrl.value);
     Get.offAllNamed(RouteManager().routes[3].name);
-  }
-
-  generateWebUrl() {
-    final String serverIp = UserSimplePreferences.getServerIp() ?? '';
-    final String databaseName = UserSimplePreferences.getDatabase() ?? '';
-    final String erpPort = UserSimplePreferences.getErpPort() ?? '';
-    final String username = UserSimplePreferences.getUsername() ?? '';
-    final String password = UserSimplePreferences.getUserPassword() ?? '';
-    final String webPort = UserSimplePreferences.getWebPort() ?? '';
-    final String httpPort = UserSimplePreferences.getHttpPort() ?? '';
-    webUrl.value =
-        '${serverIp}/User/mobilelogin?userid=${username}&passwordhash=${password}&dbName=${databaseName}&port=${httpPort}&iscall=1';
   }
 }

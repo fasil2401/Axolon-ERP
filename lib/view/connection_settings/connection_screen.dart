@@ -1,17 +1,78 @@
 import 'package:axolon_container/controller/app%20controls/connection_setting_controller.dart';
+import 'package:axolon_container/controller/app%20controls/local_settings_controller.dart';
 import 'package:axolon_container/controller/ui%20controls/password_controller.dart';
+import 'package:axolon_container/model/connection_setting_model.dart';
 import 'package:axolon_container/utils/constants/asset_paths.dart';
 import 'package:axolon_container/utils/constants/colors.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class ConnectionScreen extends StatelessWidget {
+class ConnectionScreen extends StatefulWidget {
   ConnectionScreen({Key? key}) : super(key: key);
+
+  @override
+  State<ConnectionScreen> createState() => _ConnectionScreenState();
+}
+
+class _ConnectionScreenState extends State<ConnectionScreen> {
   final passwordController = Get.put(PasswordController());
+
   final connectionSettingController = Get.put(ConnectionSettingController());
+
+  final localSettingsController = Get.put(LocalSettingsController());
+
+  final _serverIpController = TextEditingController();
+  final _webPortController = TextEditingController();
+  final _databaseNameController = TextEditingController();
+  final _httpPortController = TextEditingController();
+  final _erpPortController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    getLocalSettings();
+  }
+
+  var settingsList = [
+    ConnectionModel(
+        serverIp: 'Select Settings',
+        webPort: '',
+        httpPort: '',
+        erpPort: '',
+        databaseName: '')
+  ];
+
+  getLocalSettings() async {
+    await localSettingsController.getLocalSettings();
+    List<dynamic> settings = localSettingsController.connectionSettings;
+    settings.forEach((element) {
+      setState(() {
+        settingsList.add(element);
+      });
+    });
+
+    print(settings);
+  }
+
+  selectSettings(ConnectionModel settings) async {
+    setState(() {
+      _serverIpController.text = settings.serverIp!;
+      _webPortController.text = settings.webPort!;
+      _databaseNameController.text = settings.databaseName!;
+      _httpPortController.text = settings.httpPort!;
+      _erpPortController.text = settings.erpPort!;
+    });
+    await connectionSettingController.getServerIp(settings.serverIp!);
+    await connectionSettingController.getWebPort(settings.webPort!);
+    await connectionSettingController.getDatabaseName(settings.databaseName!);
+    await connectionSettingController.getHttpPort(settings.httpPort!);
+    await connectionSettingController.getErpPort(settings.erpPort!);
+  }
 
   @override
   Widget build(BuildContext context) {
+    print(settingsList);
     final double width = MediaQuery.of(context).size.width;
     final double height = MediaQuery.of(context).size.height;
     return Scaffold(
@@ -77,7 +138,7 @@ class ConnectionScreen extends StatelessWidget {
                       /// Text Fields
                       Container(
                         margin: const EdgeInsets.symmetric(horizontal: 25),
-                        height: height * 0.28,
+                        height: height * 0.35,
                         width: MediaQuery.of(context).size.width,
                         decoration: BoxDecoration(
                             color: Colors.white,
@@ -92,8 +153,55 @@ class ConnectionScreen extends StatelessWidget {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            /// EMAIL
+                            DropdownButtonFormField2(
+                              isDense: true,
+                              dropdownFullScreen: true,
+                              value: settingsList[0],
+                              style: TextStyle(
+                                color: AppColors.primary,
+                                fontSize: 18,
+                              ),
+                              decoration: InputDecoration(
+                                isCollapsed: true,
+                                contentPadding:
+                                    const EdgeInsets.symmetric(vertical: 15),
+                              ),
+                              isExpanded: true,
+                              icon: const Icon(
+                                Icons.arrow_drop_down,
+                                color: AppColors.primary,
+                              ),
+                              iconSize: 20,
+                              // buttonHeight: 37,
+                              buttonPadding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                              ),
+                              dropdownDecoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              items: settingsList
+                                  .map(
+                                    (item) => DropdownMenuItem(
+                                      value: item,
+                                      child: Text(
+                                        item.serverIp!,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: (value) async {
+                                await connectionSettingController
+                                    .checkIsLocalSettings();
+                                var settings = value as ConnectionModel;
+                                selectSettings(settings);
+                              },
+                              onSaved: (value) {},
+                            ),
                             TextField(
+                              controller: _serverIpController,
                               style: TextStyle(fontSize: 15),
                               decoration: InputDecoration(
                                 contentPadding:
@@ -115,9 +223,9 @@ class ConnectionScreen extends StatelessWidget {
                                 connectionSettingController.getServerIp(value);
                               },
                             ),
-
                             Divider(color: Colors.black54, height: 1),
                             TextField(
+                              controller: _webPortController,
                               keyboardType: TextInputType.number,
                               style: TextStyle(fontSize: 15),
                               decoration: InputDecoration(
@@ -136,12 +244,16 @@ class ConnectionScreen extends StatelessWidget {
                                   color: Colors.grey,
                                 ),
                               ),
-                              onChanged: (value) {
-                                connectionSettingController.getWebPort(value);
+                              onChanged: (value) async {
+                                await connectionSettingController
+                                    .checkIsLocal();
+                                await connectionSettingController
+                                    .getWebPort(value);
                               },
                             ),
                             Divider(color: Colors.black54, height: 1),
                             TextField(
+                              controller: _databaseNameController,
                               style: TextStyle(fontSize: 15),
                               decoration: InputDecoration(
                                 contentPadding:
@@ -159,8 +271,10 @@ class ConnectionScreen extends StatelessWidget {
                                   color: Colors.grey,
                                 ),
                               ),
-                              onChanged: (value) {
-                                connectionSettingController
+                              onChanged: (value) async {
+                                await connectionSettingController
+                                    .checkIsLocal();
+                                await connectionSettingController
                                     .getDatabaseName(value);
                               },
                             ),
@@ -169,6 +283,7 @@ class ConnectionScreen extends StatelessWidget {
                               children: [
                                 Flexible(
                                   child: TextField(
+                                    controller: _erpPortController,
                                     keyboardType: TextInputType.number,
                                     decoration: InputDecoration(
                                       contentPadding:
@@ -186,14 +301,17 @@ class ConnectionScreen extends StatelessWidget {
                                         color: Colors.grey,
                                       ),
                                     ),
-                                    onChanged: (value) {
-                                      connectionSettingController
+                                    onChanged: (value) async {
+                                      await connectionSettingController
+                                          .checkIsLocal();
+                                      await connectionSettingController
                                           .getErpPort(value);
                                     },
                                   ),
                                 ),
                                 Flexible(
                                   child: TextField(
+                                    controller: _httpPortController,
                                     keyboardType: TextInputType.number,
                                     style: TextStyle(fontSize: 15),
                                     decoration: InputDecoration(
@@ -212,8 +330,10 @@ class ConnectionScreen extends StatelessWidget {
                                         color: Colors.grey,
                                       ),
                                     ),
-                                    onChanged: (value) {
-                                      connectionSettingController
+                                    onChanged: (value) async {
+                                      await connectionSettingController
+                                          .checkIsLocal();
+                                      await connectionSettingController
                                           .getHttpPort(value);
                                     },
                                   ),
@@ -227,31 +347,85 @@ class ConnectionScreen extends StatelessWidget {
                       SizedBox(
                         height: height * 0.05,
                       ),
-                      Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 25),
-                        height: height * 0.055,
-                        width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            connectionSettingController.saveSettings();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            primary: AppColors.primary,
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(10), // <-- Radius
+                      // Container(
+                      //   margin: const EdgeInsets.symmetric(horizontal: 25),
+                      //   height: height * 0.055,
+                      //   width: MediaQuery.of(context).size.width,
+                      //   decoration: BoxDecoration(
+                      //     borderRadius: BorderRadius.circular(20),
+                      //   ),
+                      //   child: ElevatedButton(
+                      //     onPressed: () {
+                      //       connectionSettingController.saveSettings();
+                      //     },
+                      //     style: ElevatedButton.styleFrom(
+                      //       primary: AppColors.primary,
+                      //       shape: RoundedRectangleBorder(
+                      //         borderRadius:
+                      //             BorderRadius.circular(10), // <-- Radius
+                      //       ),
+                      //     ),
+                      //     child: Text('Continue',
+                      //         style: TextStyle(color: Colors.white)),
+                      //   ),
+                      // ),
+                      // SizedBox(
+                      //   height: height * 0.01,
+                      // ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 25),
+                              height: height * 0.055,
+                              // width: MediaQuery.of(context).size.width,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Get.back();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  primary: AppColors.mutedBlueColor,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.circular(10), // <-- Radius
+                                  ),
+                                ),
+                                child: Text('Cancel',
+                                    style: TextStyle(color: AppColors.primary)),
+                              ),
                             ),
                           ),
-                          child: Text('Continue',
-                              style: TextStyle(color: Colors.white)),
-                        ),
-                      ),
-                      SizedBox(
-                        height: height * 0.1,
-                      ),
+                          Expanded(
+                            child: Container(
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 25),
+                              height: height * 0.055,
+                              // width: MediaQuery.of(context).size.width,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  connectionSettingController.saveSettings();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  primary: AppColors.primary,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.circular(10), // <-- Radius
+                                  ),
+                                ),
+                                child: Text('Continue',
+                                    style: TextStyle(color: Colors.white)),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
                     ],
                   ),
                 ),

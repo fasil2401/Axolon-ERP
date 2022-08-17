@@ -177,23 +177,32 @@ class LoginScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            loginController.saveCredentials();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            primary: AppColors.primary,
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(10), // <-- Radius
+                        child: Obx(
+                          () => ElevatedButton(
+                            onPressed: () {
+                              loginController.saveCredentials();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              primary: AppColors.primary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.circular(10), // <-- Radius
+                              ),
                             ),
+                            child: loginController.isLoading.value
+                                ? SizedBox(
+                                    width: width * 0.05,
+                                    height: width * 0.05,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 3,
+                                      valueColor:
+                                          AlwaysStoppedAnimation(Colors.white),
+                                    ),
+                                  )
+                                : Text('Login',
+                                    style: TextStyle(color: Colors.white)),
                           ),
-                          child: Text('Login',
-                              style: TextStyle(color: Colors.white)),
                         ),
-                      ),
-                      SizedBox(
-                        height: height * 0.1,
                       ),
                     ],
                   ),

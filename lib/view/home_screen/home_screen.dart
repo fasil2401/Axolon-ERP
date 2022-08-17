@@ -1,4 +1,5 @@
 import 'package:axolon_container/controller/app%20controls/login_controller.dart';
+import 'package:axolon_container/utils/Routes/route_manger.dart';
 import 'package:axolon_container/utils/constants/colors.dart';
 import 'package:axolon_container/utils/shared_preferences/shared_preferneces.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +46,15 @@ class _HomeScreenState extends State<HomeScreen> {
           'Axolon',
           style: TextStyle(color: Colors.white),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout_rounded),
+            onPressed: () async{
+              await UserSimplePreferences.setLogin('false');
+              Get.offAllNamed(RouteManager().routes[1].name);
+            },
+          ),
+        ],
       ),
       body: SafeArea(
         child: WebView(
