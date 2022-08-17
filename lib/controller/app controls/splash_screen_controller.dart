@@ -9,8 +9,8 @@ class SplashScreenController extends GetxController {
   }
 
   enterApp() async {
-    await Future.delayed(Duration(seconds: 3), () {
-      Get.offAllNamed('/login');
+    await Future.delayed(Duration(seconds: 4), () {
+      Get.offAllNamed(RouteManager().routes[1].name);
     });
   }
 }

@@ -1,10 +1,12 @@
 import 'package:axolon_container/utils/Routes/route_manger.dart';
 import 'package:axolon_container/utils/Theme/theme_provider.dart';
-import 'package:axolon_container/view/splash_screen/splash_screen.dart';
+import 'package:axolon_container/utils/shared_preferences/shared_preferneces.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await UserSimplePreferences.init();
   runApp(const MyApp());
 }
 

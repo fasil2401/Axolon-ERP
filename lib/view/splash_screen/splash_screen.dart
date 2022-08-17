@@ -1,4 +1,4 @@
-import 'package:axolon_container/controller/ui%20controls/splash_screen_controller.dart';
+import 'package:axolon_container/controller/app%20controls/splash_screen_controller.dart';
 import 'package:axolon_container/utils/constants/asset_paths.dart';
 import 'package:axolon_container/utils/constants/colors.dart';
 import 'package:axolon_container/controller/ui%20controls/package_info_controller.dart';

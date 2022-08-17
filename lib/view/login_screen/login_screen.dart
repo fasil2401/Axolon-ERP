@@ -1,4 +1,6 @@
+import 'package:axolon_container/controller/app%20controls/login_controller.dart';
 import 'package:axolon_container/controller/ui%20controls/password_controller.dart';
+import 'package:axolon_container/utils/Routes/route_manger.dart';
 import 'package:axolon_container/utils/constants/asset_paths.dart';
 import 'package:axolon_container/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +10,7 @@ import 'package:get/get.dart';
 class LoginScreen extends StatelessWidget {
   LoginScreen({Key? key}) : super(key: key);
   final passwordController = Get.put(PasswordController());
+  final loginController = Get.put(LoginController());
 
   @override
   Widget build(BuildContext context) {
@@ -95,15 +98,24 @@ class LoginScreen extends StatelessWidget {
                             TextField(
                               style: TextStyle(fontSize: 15),
                               decoration: InputDecoration(
-                                  contentPadding:
-                                      EdgeInsets.symmetric(horizontal: 10),
-                                  border: InputBorder.none,
-                                  label: Text('User Name',
-                                      style:
-                                          TextStyle(color: AppColors.primary)),
-                                  isCollapsed: false,
-                                  hintStyle: TextStyle(
-                                      fontSize: 14, color: Colors.grey)),
+                                contentPadding:
+                                    EdgeInsets.symmetric(horizontal: 10),
+                                border: InputBorder.none,
+                                label: Text(
+                                  'User Name',
+                                  style: TextStyle(
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                                isCollapsed: false,
+                                hintStyle: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              onChanged: (value) {
+                                loginController.getUserName(value);
+                              },
                             ),
                             Divider(color: Colors.black54, height: 1),
 
@@ -115,12 +127,17 @@ class LoginScreen extends StatelessWidget {
                                   contentPadding:
                                       EdgeInsets.symmetric(horizontal: 10),
                                   border: InputBorder.none,
-                                  label: Text('Password',
-                                      style:
-                                          TextStyle(color: AppColors.primary)),
+                                  label: Text(
+                                    'Password',
+                                    style: TextStyle(
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
                                   isCollapsed: false,
                                   hintStyle: TextStyle(
-                                      fontSize: 14, color: Colors.grey),
+                                    fontSize: 14,
+                                    color: Colors.grey,
+                                  ),
                                   suffix: InkWell(
                                     onTap: () {
                                       passwordController.check();
@@ -141,6 +158,9 @@ class LoginScreen extends StatelessWidget {
                                     ),
                                   ),
                                 ),
+                                onChanged: (value) {
+                                  loginController.getPassword(value);
+                                },
                               ),
                             ),
                           ],
@@ -158,7 +178,9 @@ class LoginScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            loginController.saveCredentials();
+                          },
                           style: ElevatedButton.styleFrom(
                             primary: AppColors.primary,
                             shape: RoundedRectangleBorder(
@@ -195,7 +217,9 @@ class LoginScreen extends StatelessWidget {
             width: 10,
           ),
           FloatingActionButton(
-            onPressed: () {},
+            onPressed: () {
+              Get.toNamed(RouteManager().routes[2].name);
+            },
             elevation: 2,
             backgroundColor: AppColors.primary,
             child: Icon(
