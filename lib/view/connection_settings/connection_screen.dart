@@ -120,7 +120,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
           children: [
             /// Login & Welcome back
             Container(
-              height: 210,
+              height: height * 0.3,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 35),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -151,7 +151,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      const SizedBox(height: 50),
+                      SizedBox(height: height * 0.05),
 
                       Center(
                         child: SizedBox(
@@ -159,11 +159,12 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                           child: Image.asset(Images.logo, fit: BoxFit.contain),
                         ),
                       ),
-                      const SizedBox(height: 50),
+                      SizedBox(height: height * 0.05),
 
                       /// Text Fields
                       Container(
                         margin: const EdgeInsets.symmetric(horizontal: 25),
+                        padding: const EdgeInsets.symmetric(vertical: 5),
                         // height: height * 0.5,
                         width: MediaQuery.of(context).size.width,
                         decoration: BoxDecoration(
@@ -224,6 +225,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                               },
                               onSaved: (value) {},
                             ),
+                            SizedBox(height: height * 0.01),
                             TextField(
                               controller: _connectiionNameController,
                               style: TextStyle(fontSize: 15),
@@ -249,6 +251,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                               },
                             ),
                             Divider(color: Colors.black54, height: 1),
+                            SizedBox(height: height * 0.01),
                             TextField(
                               controller: _serverIpController,
                               style: TextStyle(fontSize: 15),
@@ -273,6 +276,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                               },
                             ),
                             Divider(color: Colors.black54, height: 1),
+                            SizedBox(height: height * 0.01),
                             TextField(
                               controller: _webPortController,
                               keyboardType: TextInputType.number,
@@ -299,6 +303,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                               },
                             ),
                             Divider(color: Colors.black54, height: 1),
+                            SizedBox(height: height * 0.01),
                             TextField(
                               controller: _databaseNameController,
                               style: TextStyle(fontSize: 15),
@@ -324,6 +329,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                               },
                             ),
                             Divider(color: Colors.black54, height: 1),
+                            SizedBox(height: height * 0.01),
                             Row(
                               children: [
                                 Flexible(
@@ -468,6 +474,9 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                             ),
                           ),
                         ],
+                      ),
+                      SizedBox(
+                        height: height * 0.08,
                       )
                     ],
                   ),
