@@ -14,6 +14,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  bool isLoading = true;
+  final _key = UniqueKey();
   @override
   void initState() {
     super.initState();
@@ -32,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       webUrl =
           '${serverIp}/User/mobilelogin?userid=${username}&passwordhash=${password}&dbName=${databaseName}&port=${httpPort}&iscall=1';
+      // webUrl = 'https://docs.flutter.dev/deployment/ios';
     });
   }
 
@@ -49,18 +52,33 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.logout_rounded),
-            onPressed: () async{
+            onPressed: () async {
               await UserSimplePreferences.setLogin('false');
               Get.offAllNamed(RouteManager().routes[1].name);
             },
           ),
         ],
       ),
-      body: SafeArea(
-        child: WebView(
-          initialUrl: webUrl,
-          javascriptMode: JavascriptMode.unrestricted,
-        ),
+      body: Stack(
+        children: <Widget>[
+          WebView(
+            key: _key,
+            initialUrl: webUrl,
+            javascriptMode: JavascriptMode.unrestricted,
+            onPageFinished: (finish) {
+              setState(() {
+                isLoading = false;
+              });
+            },
+          ),
+          isLoading
+              ? Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.primary,
+                  ),
+                )
+              : Stack(),
+        ],
       ),
     );
   }

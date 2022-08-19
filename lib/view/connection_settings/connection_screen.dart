@@ -164,7 +164,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                       /// Text Fields
                       Container(
                         margin: const EdgeInsets.symmetric(horizontal: 25),
-                        height: height * 0.4,
+                        // height: height * 0.5,
                         width: MediaQuery.of(context).size.width,
                         decoration: BoxDecoration(
                             color: Colors.white,
