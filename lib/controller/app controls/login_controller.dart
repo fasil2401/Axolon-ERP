@@ -53,7 +53,6 @@ class LoginController extends GetxController {
       "port": webPort,
       "servername": ""
     });
-
     webUrl.value =
         'http://${serverIp}:${erpPort}/User/mobilelogin?userid=${username}&passwordhash=${password}&dbName=${databaseName}&port=${httpPort}&iscall=1';
 
