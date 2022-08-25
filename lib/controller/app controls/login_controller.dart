@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:axolon_container/services/login_services.dart';
 import 'package:axolon_container/utils/Routes/route_manger.dart';
 import 'package:axolon_container/utils/shared_preferences/shared_preferneces.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class LoginController extends GetxController {
@@ -32,7 +31,8 @@ class LoginController extends GetxController {
   saveCredentials() async {
     await UserSimplePreferences.setUsername(userName.value);
     await UserSimplePreferences.setUserPassword(password.value);
-    getLogin();
+    // getLogin();
+    genearateApi();
   }
 
   genearateApi() async {
@@ -42,6 +42,7 @@ class LoginController extends GetxController {
     final String httpPort = await UserSimplePreferences.getHttpPort() ?? '';
     final String username = await UserSimplePreferences.getUsername() ?? '';
     final String password = await UserSimplePreferences.getUserPassword() ?? '';
+    final String webPort = await UserSimplePreferences.getWebPort() ?? '';
     url = 'http://${serverIp}/V1/Api/Gettoken';
     data = jsonEncode({
       "instance": serverIp,
@@ -49,38 +50,36 @@ class LoginController extends GetxController {
       "Password": password,
       "passwordhash": "",
       "dbName": databaseName,
-      "port": httpPort,
+      "port": webPort,
       "servername": ""
     });
+
+    webUrl.value =
+        'http://${serverIp}:${erpPort}/User/mobilelogin?userid=${username}&passwordhash=${password}&dbName=${databaseName}&port=${httpPort}&iscall=1';
+
+    getLogin(); 
   }
 
   getLogin() async {
-    await genearateApi();
     try {
-      // Get.defaultDialog(
-      //   title: "Please Wait",
-      //   content: Center(
-      //     child: CircularProgressIndicator(),
-      //   ),
-      // );
       isLoading.value = true;
-      var feedback = await RemoteServicesLogin().getLogin(url, data);
+      var feedback = await RemoteServicesLogin().getLogin(webUrl.value, data);
       if (feedback != null) {
         res.value = feedback.res;
         message.value = feedback.msg;
-        token.value = feedback.loginToken!;
+        // token.value = feedback.loginToken!;
+        Get.snackbar('Error', message.value);
       } else {
-        message.value = 'failure';
+        // message.value = 'failure';
       }
     } finally {
       if (res.value == 1) {
         isLoading.value = false;
-        await UserSimplePreferences.setLogin('true');
-        getWebView();
+        // await UserSimplePreferences.setLogin('true');
+        // getWebView();
       } else {
         // Get.back();
         isLoading.value = false;
-        Get.snackbar('Error', 'No User Found');
       }
     }
   }

@@ -1,10 +1,8 @@
 import 'package:axolon_container/services/db_helper/db_helper.dart';
 import 'package:axolon_container/utils/Routes/route_manger.dart';
 import 'package:axolon_container/utils/Theme/theme_provider.dart';
-import 'package:axolon_container/utils/constants/colors.dart';
 import 'package:axolon_container/utils/shared_preferences/shared_preferneces.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 void main() async {
