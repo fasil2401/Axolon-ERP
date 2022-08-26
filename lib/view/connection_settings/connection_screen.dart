@@ -10,7 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class ConnectionScreen extends StatefulWidget {
-  ConnectionScreen({Key? key}) : super(key: key);
+  ConnectionScreen({Key? key, this.connectionModel}) : super(key: key);
+
+  ConnectionModel? connectionModel;
 
   @override
   State<ConnectionScreen> createState() => _ConnectionScreenState();
@@ -79,21 +81,34 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
   }
 
   prefillData() async {
-    String connectionName =
-        await UserSimplePreferences.getConnectionName() ?? '';
-    String serverIp = await UserSimplePreferences.getServerIp() ?? '';
-    String webPort = await UserSimplePreferences.getWebPort() ?? '';
-    String databaseName = await UserSimplePreferences.getDatabase() ?? '';
-    String httpPort = await UserSimplePreferences.getHttpPort() ?? '';
-    String erpPort = await UserSimplePreferences.getErpPort() ?? '';
-    setState(() {
-      _connectiionNameController.text = connectionName;
-      _serverIpController.text = serverIp;
-      _webPortController.text = webPort;
-      _databaseNameController.text = databaseName;
-      _httpPortController.text = httpPort;
-      _erpPortController.text = erpPort;
-    });
+    if (widget.connectionModel != null) {
+      setState(() {
+        _connectiionNameController.text =
+            widget.connectionModel!.connectionName ?? '';
+        _serverIpController.text = widget.connectionModel!.serverIp ?? '';
+        _webPortController.text = widget.connectionModel!.webPort ?? '';
+        _databaseNameController.text =
+            widget.connectionModel!.databaseName ?? '';
+        _httpPortController.text = widget.connectionModel!.httpPort ?? '';
+        _erpPortController.text = widget.connectionModel!.erpPort ?? '';
+      });
+    } else {
+      String connectionName =
+          await UserSimplePreferences.getConnectionName() ?? '';
+      String serverIp = await UserSimplePreferences.getServerIp() ?? '';
+      String webPort = await UserSimplePreferences.getWebPort() ?? '';
+      String databaseName = await UserSimplePreferences.getDatabase() ?? '';
+      String httpPort = await UserSimplePreferences.getHttpPort() ?? '';
+      String erpPort = await UserSimplePreferences.getErpPort() ?? '';
+      setState(() {
+        _connectiionNameController.text = connectionName;
+        _serverIpController.text = serverIp;
+        _webPortController.text = webPort;
+        _databaseNameController.text = databaseName;
+        _httpPortController.text = httpPort;
+        _erpPortController.text = erpPort;
+      });
+    }
   }
 
   @override
@@ -330,62 +345,80 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                             ),
                             Divider(color: Colors.black54, height: 1),
                             SizedBox(height: height * 0.01),
-                            Row(
-                              children: [
-                                Flexible(
-                                  child: TextField(
-                                    controller: _erpPortController,
-                                    keyboardType: TextInputType.number,
-                                    decoration: InputDecoration(
-                                      contentPadding:
-                                          EdgeInsets.symmetric(horizontal: 10),
-                                      border: InputBorder.none,
-                                      label: Text(
-                                        'ERP Port',
-                                        style: TextStyle(
-                                          color: AppColors.primary,
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 5),
+                              child: Row(
+                                children: [
+                                  Flexible(
+                                    child: Column(
+                                      children: [
+                                        TextField(
+                                          controller: _erpPortController,
+                                          keyboardType: TextInputType.number,
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.symmetric(
+                                                    horizontal: 10),
+                                            border: InputBorder.none,
+                                            label: Text(
+                                              'ERP Port',
+                                              style: TextStyle(
+                                                color: AppColors.primary,
+                                              ),
+                                            ),
+                                            isCollapsed: false,
+                                            hintStyle: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                          onChanged: (value) async {
+                                            await connectionSettingController
+                                                .getErpPort(value);
+                                          },
                                         ),
-                                      ),
-                                      isCollapsed: false,
-                                      hintStyle: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey,
-                                      ),
+                                        Divider(
+                                            color: Colors.black54, height: 1),
+                                      ],
                                     ),
-                                    onChanged: (value) async {
-                                      await connectionSettingController
-                                          .getErpPort(value);
-                                    },
                                   ),
-                                ),
-                                Flexible(
-                                  child: TextField(
-                                    controller: _httpPortController,
-                                    keyboardType: TextInputType.number,
-                                    style: TextStyle(fontSize: 15),
-                                    decoration: InputDecoration(
-                                      contentPadding:
-                                          EdgeInsets.symmetric(horizontal: 10),
-                                      border: InputBorder.none,
-                                      label: Text(
-                                        'Http Port',
-                                        style: TextStyle(
-                                          color: AppColors.primary,
+                                  SizedBox(width: width * 0.05),
+                                  Flexible(
+                                    child: Column(
+                                      children: [
+                                        TextField(
+                                          controller: _httpPortController,
+                                          keyboardType: TextInputType.number,
+                                          style: TextStyle(fontSize: 15),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.symmetric(
+                                                    horizontal: 10),
+                                            border: InputBorder.none,
+                                            label: Text(
+                                              'Http Port',
+                                              style: TextStyle(
+                                                color: AppColors.primary,
+                                              ),
+                                            ),
+                                            isCollapsed: false,
+                                            hintStyle: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                          onChanged: (value) async {
+                                            await connectionSettingController
+                                                .getHttpPort(value);
+                                          },
                                         ),
-                                      ),
-                                      isCollapsed: false,
-                                      hintStyle: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey,
-                                      ),
+                                        Divider(
+                                            color: Colors.black54, height: 1),
+                                      ],
                                     ),
-                                    onChanged: (value) async {
-                                      await connectionSettingController
-                                          .getHttpPort(value);
-                                    },
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ],
                         ),

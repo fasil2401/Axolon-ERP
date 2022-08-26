@@ -3,14 +3,37 @@ import 'package:axolon_container/controller/ui%20controls/password_controller.da
 import 'package:axolon_container/utils/Routes/route_manger.dart';
 import 'package:axolon_container/utils/constants/asset_paths.dart';
 import 'package:axolon_container/utils/constants/colors.dart';
+import 'package:axolon_container/utils/shared_preferences/shared_preferneces.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   LoginScreen({Key? key}) : super(key: key);
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _userNameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  prefilData() async {
+    _userNameController.text = await UserSimplePreferences.getUsername() ?? '';
+    _passwordController.text =
+        await UserSimplePreferences.getUserPassword() ?? '';
+    loginController.getUserName(_userNameController.text);
+    loginController.getPassword(_passwordController.text);
+  }
+
   final passwordController = Get.put(PasswordController());
   final loginController = Get.put(LoginController());
+
+  @override
+  void initState() {
+    super.initState();
+    prefilData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,6 +124,7 @@ class LoginScreen extends StatelessWidget {
                             children: [
                               SizedBox(height: height * 0.01),
                               TextField(
+                                controller: _userNameController,
                                 style: TextStyle(fontSize: 15),
                                 decoration: InputDecoration(
                                   contentPadding:
@@ -128,6 +152,7 @@ class LoginScreen extends StatelessWidget {
                               /// PASSWORD
                               Obx(
                                 () => TextField(
+                                  controller: _passwordController,
                                   obscureText: passwordController.status.value,
                                   decoration: InputDecoration(
                                     contentPadding:
