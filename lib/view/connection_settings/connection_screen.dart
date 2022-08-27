@@ -8,6 +8,7 @@ import 'package:axolon_container/utils/shared_preferences/shared_preferneces.dar
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class ConnectionScreen extends StatefulWidget {
   ConnectionScreen({Key? key, this.connectionModel}) : super(key: key);
@@ -92,6 +93,18 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
         _httpPortController.text = widget.connectionModel!.httpPort ?? '';
         _erpPortController.text = widget.connectionModel!.erpPort ?? '';
       });
+      await connectionSettingController
+          .getConnectionName(widget.connectionModel!.connectionName!);
+      await connectionSettingController
+          .getServerIp(widget.connectionModel!.serverIp!);
+      await connectionSettingController
+          .getWebPort(widget.connectionModel!.webPort!);
+      await connectionSettingController
+          .getDatabaseName(widget.connectionModel!.databaseName!);
+      await connectionSettingController
+          .getHttpPort(widget.connectionModel!.httpPort!);
+      await connectionSettingController
+          .getErpPort(widget.connectionModel!.erpPort!);
     } else {
       String connectionName =
           await UserSimplePreferences.getConnectionName() ?? '';
@@ -108,6 +121,12 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
         _httpPortController.text = httpPort;
         _erpPortController.text = erpPort;
       });
+      await connectionSettingController.getConnectionName(connectionName);
+      await connectionSettingController.getServerIp(serverIp);
+      await connectionSettingController.getWebPort(webPort);
+      await connectionSettingController.getDatabaseName(databaseName);
+      await connectionSettingController.getHttpPort(httpPort);
+      await connectionSettingController.getErpPort(erpPort);
     }
   }
 
@@ -254,12 +273,19 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                                     color: AppColors.primary,
                                   ),
                                 ),
-                                isCollapsed: false,
+                                isCollapsed: true,
                                 hintStyle: TextStyle(
                                   fontSize: 14,
                                   color: Colors.grey,
                                 ),
+                                suffix: Obx(() => QrImage(
+                                      data: connectionSettingController
+                                          .qrData.value,
+                                      size: width * 0.1,
+                                    )),
+                                    
                               ),
+                              
                               onChanged: (value) {
                                 connectionSettingController
                                     .getConnectionName(value);

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:axolon_container/controller/app%20controls/local_settings_controller.dart';
 import 'package:axolon_container/model/connection_setting_model.dart';
 import 'package:axolon_container/utils/Routes/route_manger.dart';
@@ -21,29 +23,56 @@ class ConnectionSettingController extends GetxController {
   var httpPort = ''.obs;
   var erpPort = ''.obs;
   var isLocalSettings = false.obs;
+  var qrData = ''.obs;
+
+  // var qrData = jsonEncode({
+  //   "connectionName": connectionName.value,
+  //   "serverIp": serverIp.value,
+  //   "webPort": webPort.value,
+  //   "databaseName": databaseName.value,
+  //   "httpPort": httpPort.value,
+  //   "erpPort": erpPort.value,
+  // }).obs;
+
+  getQrData() {
+    qrData.value = jsonEncode({
+      "connectionName": connectionName.value,
+      "serverIp": serverIp.value,
+      "webPort": webPort.value,
+      "databaseName": databaseName.value,
+      "httpPort": httpPort.value,
+      "erpPort": erpPort.value,
+    });
+  }
 
   getConnectionName(String connectionName) {
     this.connectionName.value = connectionName;
+    getQrData();
   }
 
   getServerIp(String serverIp) {
     this.serverIp.value = serverIp;
+    getQrData();
   }
 
   getWebPort(String webPort) {
     this.webPort.value = webPort;
+    getQrData();
   }
 
   getDatabaseName(String databaseName) {
     this.databaseName.value = databaseName;
+    getQrData();
   }
 
   getHttpPort(String httpPort) {
     this.httpPort.value = httpPort;
+    getQrData();
   }
 
   getErpPort(String erpPort) {
     this.erpPort.value = erpPort;
+    getQrData();
   }
 
   saveSettings(List<ConnectionModel> list) async {
