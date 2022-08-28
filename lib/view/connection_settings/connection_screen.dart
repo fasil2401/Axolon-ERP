@@ -1,13 +1,21 @@
+import 'dart:io';
+import 'dart:ui';
+
 import 'package:axolon_container/controller/app%20controls/connection_setting_controller.dart';
 import 'package:axolon_container/controller/app%20controls/local_settings_controller.dart';
 import 'package:axolon_container/controller/ui%20controls/password_controller.dart';
 import 'package:axolon_container/model/connection_setting_model.dart';
 import 'package:axolon_container/utils/constants/asset_paths.dart';
 import 'package:axolon_container/utils/constants/colors.dart';
+import 'package:axolon_container/utils/date_formatter.dart';
 import 'package:axolon_container/utils/shared_preferences/shared_preferneces.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:gallery_saver/gallery_saver.dart';
 import 'package:get/get.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class ConnectionScreen extends StatefulWidget {
@@ -49,6 +57,37 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
         erpPort: '',
         databaseName: '')
   ];
+
+  final qrKey = GlobalKey();
+
+  void takeScreenShot() async {
+    PermissionStatus res;
+    res = await Permission.storage.request();
+    if (res.isGranted) {
+      final boundary =
+          qrKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+      // We can increse the size of QR using pixel ratio
+      final image = await boundary.toImage(pixelRatio: 5.0);
+      final byteData = await (image.toByteData(format: ImageByteFormat.png));
+      if (byteData != null) {
+        final pngBytes = byteData.buffer.asUint8List();
+        // getting directory of our phone
+        final directory = (await getApplicationDocumentsDirectory()).path;
+        final imgFile = File(
+          '$directory/${dateFormat.format(DateTime.now()).toString()}axolonERP(${_connectiionNameController.text}).png',
+        );
+        imgFile.writeAsBytes(pngBytes);
+        GallerySaver.saveImage(imgFile.path).then((success) async {
+          //In here you can show snackbar or do something in the backend at successfull download
+          Get.snackbar(
+            'QR Code',
+            'QR Code saved to gallery as ${dateFormat.format(DateTime.now()).toString()}axolonERP(${_connectiionNameController.text}).png',
+            duration: Duration(seconds: 2),
+          );
+        });
+      }
+    }
+  }
 
   getLocalSettings() async {
     await localSettingsController.getLocalSettings();
@@ -196,258 +235,272 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                       SizedBox(height: height * 0.05),
 
                       /// Text Fields
-                      Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 25),
-                        padding: const EdgeInsets.symmetric(vertical: 5),
-                        // height: height * 0.5,
-                        width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.grey.withOpacity(0.4),
-                                  blurRadius: 20,
-                                  spreadRadius: 10,
-                                  offset: const Offset(0, 10)),
-                            ]),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            DropdownButtonFormField2(
-                              isDense: true,
-                              dropdownFullScreen: true,
-                              value: settingsList[0],
-                              style: TextStyle(
-                                color: AppColors.primary,
-                                fontSize: 18,
-                              ),
-                              decoration: InputDecoration(
-                                isCollapsed: true,
-                                contentPadding:
-                                    const EdgeInsets.symmetric(vertical: 15),
-                              ),
-                              isExpanded: true,
-                              icon: const Icon(
-                                Icons.arrow_drop_down,
-                                color: AppColors.primary,
-                              ),
-                              iconSize: 20,
-                              // buttonHeight: 37,
-                              buttonPadding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                              ),
-                              dropdownDecoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              items: settingsList
-                                  .map(
-                                    (item) => DropdownMenuItem(
-                                      value: item,
-                                      child: Text(
-                                        item.connectionName!,
-                                        style: const TextStyle(
-                                          fontSize: 16,
+                      Stack(
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 25),
+                            child: Obx(() => RepaintBoundary(
+                                  key: qrKey,
+                                  child: QrImage(
+                                    backgroundColor: Colors.white,
+                                    data: connectionSettingController
+                                        .qrData.value,
+                                    size: width * 0.5,
+                                  ),
+                                )),
+                          ),
+                          Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 25),
+                            padding: const EdgeInsets.symmetric(vertical: 5),
+                            // height: height * 0.5,
+                            width: MediaQuery.of(context).size.width,
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Colors.grey.withOpacity(0.4),
+                                      blurRadius: 20,
+                                      spreadRadius: 10,
+                                      offset: const Offset(0, 10)),
+                                ]),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                DropdownButtonFormField2(
+                                  isDense: true,
+                                  dropdownFullScreen: true,
+                                  value: settingsList[0],
+                                  style: TextStyle(
+                                    color: AppColors.primary,
+                                    fontSize: 18,
+                                  ),
+                                  decoration: InputDecoration(
+                                    isCollapsed: true,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        vertical: 15),
+                                  ),
+                                  isExpanded: true,
+                                  icon: const Icon(
+                                    Icons.arrow_drop_down,
+                                    color: AppColors.primary,
+                                  ),
+                                  iconSize: 20,
+                                  // buttonHeight: 37,
+                                  buttonPadding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                  ),
+                                  dropdownDecoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  items: settingsList
+                                      .map(
+                                        (item) => DropdownMenuItem(
+                                          value: item,
+                                          child: Text(
+                                            item.connectionName!,
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                            ),
+                                          ),
                                         ),
+                                      )
+                                      .toList(),
+                                  onChanged: (value) async {
+                                    var settings = value as ConnectionModel;
+                                    selectSettings(settings);
+                                  },
+                                  onSaved: (value) {},
+                                ),
+                                SizedBox(height: height * 0.01),
+                                TextField(
+                                  controller: _connectiionNameController,
+                                  style: TextStyle(fontSize: 15),
+                                  decoration: InputDecoration(
+                                    contentPadding:
+                                        EdgeInsets.symmetric(horizontal: 10),
+                                    border: InputBorder.none,
+                                    label: Text(
+                                      'Connection Name',
+                                      style: TextStyle(
+                                        color: AppColors.primary,
                                       ),
                                     ),
-                                  )
-                                  .toList(),
-                              onChanged: (value) async {
-                                var settings = value as ConnectionModel;
-                                selectSettings(settings);
-                              },
-                              onSaved: (value) {},
-                            ),
-                            SizedBox(height: height * 0.01),
-                            TextField(
-                              controller: _connectiionNameController,
-                              style: TextStyle(fontSize: 15),
-                              decoration: InputDecoration(
-                                contentPadding:
-                                    EdgeInsets.symmetric(horizontal: 10),
-                                border: InputBorder.none,
-                                label: Text(
-                                  'Connection Name',
-                                  style: TextStyle(
-                                    color: AppColors.primary,
-                                  ),
-                                ),
-                                isCollapsed: true,
-                                hintStyle: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                ),
-                                suffix: Obx(() => QrImage(
-                                      data: connectionSettingController
-                                          .qrData.value,
-                                      size: width * 0.1,
-                                    )),
-                                    
-                              ),
-                              
-                              onChanged: (value) {
-                                connectionSettingController
-                                    .getConnectionName(value);
-                              },
-                            ),
-                            Divider(color: Colors.black54, height: 1),
-                            SizedBox(height: height * 0.01),
-                            TextField(
-                              controller: _serverIpController,
-                              style: TextStyle(fontSize: 15),
-                              decoration: InputDecoration(
-                                contentPadding:
-                                    EdgeInsets.symmetric(horizontal: 10),
-                                border: InputBorder.none,
-                                label: Text(
-                                  'Server Ip',
-                                  style: TextStyle(
-                                    color: AppColors.primary,
-                                  ),
-                                ),
-                                isCollapsed: false,
-                                hintStyle: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              onChanged: (value) {
-                                connectionSettingController.getServerIp(value);
-                              },
-                            ),
-                            Divider(color: Colors.black54, height: 1),
-                            SizedBox(height: height * 0.01),
-                            TextField(
-                              controller: _webPortController,
-                              keyboardType: TextInputType.number,
-                              style: TextStyle(fontSize: 15),
-                              decoration: InputDecoration(
-                                contentPadding:
-                                    EdgeInsets.symmetric(horizontal: 10),
-                                border: InputBorder.none,
-                                label: Text(
-                                  'Web Service Port',
-                                  style: TextStyle(
-                                    color: AppColors.primary,
-                                  ),
-                                ),
-                                isCollapsed: false,
-                                hintStyle: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              onChanged: (value) async {
-                                await connectionSettingController
-                                    .getWebPort(value);
-                              },
-                            ),
-                            Divider(color: Colors.black54, height: 1),
-                            SizedBox(height: height * 0.01),
-                            TextField(
-                              controller: _databaseNameController,
-                              style: TextStyle(fontSize: 15),
-                              decoration: InputDecoration(
-                                contentPadding:
-                                    EdgeInsets.symmetric(horizontal: 10),
-                                border: InputBorder.none,
-                                label: Text(
-                                  'Database Name',
-                                  style: TextStyle(
-                                    color: AppColors.primary,
-                                  ),
-                                ),
-                                isCollapsed: false,
-                                hintStyle: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              onChanged: (value) async {
-                                await connectionSettingController
-                                    .getDatabaseName(value);
-                              },
-                            ),
-                            Divider(color: Colors.black54, height: 1),
-                            SizedBox(height: height * 0.01),
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 5),
-                              child: Row(
-                                children: [
-                                  Flexible(
-                                    child: Column(
-                                      children: [
-                                        TextField(
-                                          controller: _erpPortController,
-                                          keyboardType: TextInputType.number,
-                                          decoration: InputDecoration(
-                                            contentPadding:
-                                                EdgeInsets.symmetric(
-                                                    horizontal: 10),
-                                            border: InputBorder.none,
-                                            label: Text(
-                                              'ERP Port',
-                                              style: TextStyle(
-                                                color: AppColors.primary,
-                                              ),
-                                            ),
-                                            isCollapsed: false,
-                                            hintStyle: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                          onChanged: (value) async {
-                                            await connectionSettingController
-                                                .getErpPort(value);
-                                          },
-                                        ),
-                                        Divider(
-                                            color: Colors.black54, height: 1),
-                                      ],
+                                    // isCollapsed: true,
+                                    hintStyle: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey,
                                     ),
                                   ),
-                                  SizedBox(width: width * 0.05),
-                                  Flexible(
-                                    child: Column(
-                                      children: [
-                                        TextField(
-                                          controller: _httpPortController,
-                                          keyboardType: TextInputType.number,
-                                          style: TextStyle(fontSize: 15),
-                                          decoration: InputDecoration(
-                                            contentPadding:
-                                                EdgeInsets.symmetric(
-                                                    horizontal: 10),
-                                            border: InputBorder.none,
-                                            label: Text(
-                                              'Http Port',
-                                              style: TextStyle(
-                                                color: AppColors.primary,
-                                              ),
-                                            ),
-                                            isCollapsed: false,
-                                            hintStyle: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                          onChanged: (value) async {
-                                            await connectionSettingController
-                                                .getHttpPort(value);
-                                          },
-                                        ),
-                                        Divider(
-                                            color: Colors.black54, height: 1),
-                                      ],
+                                  onChanged: (value) {
+                                    connectionSettingController
+                                        .getConnectionName(value);
+                                  },
+                                ),
+                                Divider(color: Colors.black54, height: 1),
+                                SizedBox(height: height * 0.01),
+                                TextField(
+                                  controller: _serverIpController,
+                                  style: TextStyle(fontSize: 15),
+                                  decoration: InputDecoration(
+                                    contentPadding:
+                                        EdgeInsets.symmetric(horizontal: 10),
+                                    border: InputBorder.none,
+                                    label: Text(
+                                      'Server Ip',
+                                      style: TextStyle(
+                                        color: AppColors.primary,
+                                      ),
+                                    ),
+                                    isCollapsed: false,
+                                    hintStyle: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey,
                                     ),
                                   ),
-                                ],
-                              ),
+                                  onChanged: (value) {
+                                    connectionSettingController
+                                        .getServerIp(value);
+                                  },
+                                ),
+                                Divider(color: Colors.black54, height: 1),
+                                SizedBox(height: height * 0.01),
+                                TextField(
+                                  controller: _webPortController,
+                                  keyboardType: TextInputType.number,
+                                  style: TextStyle(fontSize: 15),
+                                  decoration: InputDecoration(
+                                    contentPadding:
+                                        EdgeInsets.symmetric(horizontal: 10),
+                                    border: InputBorder.none,
+                                    label: Text(
+                                      'Web Service Port',
+                                      style: TextStyle(
+                                        color: AppColors.primary,
+                                      ),
+                                    ),
+                                    isCollapsed: false,
+                                    hintStyle: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                  onChanged: (value) async {
+                                    await connectionSettingController
+                                        .getWebPort(value);
+                                  },
+                                ),
+                                Divider(color: Colors.black54, height: 1),
+                                SizedBox(height: height * 0.01),
+                                TextField(
+                                  controller: _databaseNameController,
+                                  style: TextStyle(fontSize: 15),
+                                  decoration: InputDecoration(
+                                    contentPadding:
+                                        EdgeInsets.symmetric(horizontal: 10),
+                                    border: InputBorder.none,
+                                    label: Text(
+                                      'Database Name',
+                                      style: TextStyle(
+                                        color: AppColors.primary,
+                                      ),
+                                    ),
+                                    isCollapsed: false,
+                                    hintStyle: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                  onChanged: (value) async {
+                                    await connectionSettingController
+                                        .getDatabaseName(value);
+                                  },
+                                ),
+                                Divider(color: Colors.black54, height: 1),
+                                SizedBox(height: height * 0.01),
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 5),
+                                  child: Row(
+                                    children: [
+                                      Flexible(
+                                        child: Column(
+                                          children: [
+                                            TextField(
+                                              controller: _erpPortController,
+                                              keyboardType:
+                                                  TextInputType.number,
+                                              decoration: InputDecoration(
+                                                contentPadding:
+                                                    EdgeInsets.symmetric(
+                                                        horizontal: 10),
+                                                border: InputBorder.none,
+                                                label: Text(
+                                                  'ERP Port',
+                                                  style: TextStyle(
+                                                    color: AppColors.primary,
+                                                  ),
+                                                ),
+                                                isCollapsed: false,
+                                                hintStyle: TextStyle(
+                                                  fontSize: 14,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                              onChanged: (value) async {
+                                                await connectionSettingController
+                                                    .getErpPort(value);
+                                              },
+                                            ),
+                                            Divider(
+                                                color: Colors.black54,
+                                                height: 1),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(width: width * 0.05),
+                                      Flexible(
+                                        child: Column(
+                                          children: [
+                                            TextField(
+                                              controller: _httpPortController,
+                                              keyboardType:
+                                                  TextInputType.number,
+                                              style: TextStyle(fontSize: 15),
+                                              decoration: InputDecoration(
+                                                contentPadding:
+                                                    EdgeInsets.symmetric(
+                                                        horizontal: 10),
+                                                border: InputBorder.none,
+                                                label: Text(
+                                                  'Http Port',
+                                                  style: TextStyle(
+                                                    color: AppColors.primary,
+                                                  ),
+                                                ),
+                                                isCollapsed: false,
+                                                hintStyle: TextStyle(
+                                                  fontSize: 14,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                              onChanged: (value) async {
+                                                await connectionSettingController
+                                                    .getHttpPort(value);
+                                              },
+                                            ),
+                                            Divider(
+                                                color: Colors.black54,
+                                                height: 1),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
 
                       SizedBox(
@@ -535,8 +588,33 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                         ],
                       ),
                       SizedBox(
+                        height: height * 0.03,
+                      ),
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 25),
+                        height: height * 0.06,
+                        width: MediaQuery.of(context).size.width,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            takeScreenShot();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: AppColors.primary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(10), // <-- Radius
+                            ),
+                          ),
+                          child: Text('Encrypt',
+                              style: TextStyle(color: Colors.white)),
+                        ),
+                      ),
+                      SizedBox(
                         height: height * 0.08,
-                      )
+                      ),
                     ],
                   ),
                 ),

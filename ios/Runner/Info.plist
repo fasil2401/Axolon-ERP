@@ -54,7 +54,15 @@
 	<false/>
 	<key>io.flutter.embedded_views_preview</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>This app needs camera access to scan QR codes</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app requires access to the photo library.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app does not require access to the microphone.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This app requires access to the camera.</string>
 </dict>
 </plist>
