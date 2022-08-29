@@ -1,11 +1,9 @@
 import 'dart:convert';
-
 import 'package:axolon_container/controller/app%20controls/local_settings_controller.dart';
 import 'package:axolon_container/model/connection_setting_model.dart';
+import 'package:axolon_container/utils/Encryption/encryptor.dart';
 import 'package:axolon_container/utils/Routes/route_manger.dart';
-import 'package:axolon_container/utils/constants/colors.dart';
 import 'package:axolon_container/utils/shared_preferences/shared_preferneces.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class ConnectionSettingController extends GetxController {
@@ -24,34 +22,33 @@ class ConnectionSettingController extends GetxController {
   var erpPort = ''.obs;
   var isLocalSettings = false.obs;
   var qrData = ''.obs;
-
-  // var qrData = jsonEncode({
-  //   "connectionName": connectionName.value,
-  //   "serverIp": serverIp.value,
-  //   "webPort": webPort.value,
-  //   "databaseName": databaseName.value,
-  //   "httpPort": httpPort.value,
-  //   "erpPort": erpPort.value,
-  // }).obs;
+  var encryptedName = ''.obs;
+  var encryptedIp = ''.obs;
+  var encryptedWebPort = ''.obs;
+  var encryptedDatabaseName = ''.obs;
+  var encryptedHttpPort = ''.obs;
+  var encryptedErpPort = ''.obs;
 
   getQrData() {
     qrData.value = jsonEncode({
-      "connectionName": connectionName.value,
-      "serverIp": serverIp.value,
-      "webPort": webPort.value,
-      "databaseName": databaseName.value,
-      "httpPort": httpPort.value,
-      "erpPort": erpPort.value,
+      "connectionName": encryptedName.value,
+      "serverIp": encryptedIp.value,
+      "webPort": encryptedWebPort.value,
+      "databaseName": encryptedDatabaseName.value,
+      "httpPort": encryptedHttpPort.value,
+      "erpPort": encryptedErpPort.value,
     });
   }
 
   getConnectionName(String connectionName) {
     this.connectionName.value = connectionName;
+    encryptedName.value = EncryptData.encryptAES(connectionName);
     getQrData();
   }
 
   getServerIp(String serverIp) {
     this.serverIp.value = serverIp;
+    encryptedIp.value = EncryptData.encryptAES(serverIp);
     getQrData();
   }
 
@@ -62,16 +59,19 @@ class ConnectionSettingController extends GetxController {
 
   getDatabaseName(String databaseName) {
     this.databaseName.value = databaseName;
+    encryptedDatabaseName.value = EncryptData.encryptAES(databaseName);
     getQrData();
   }
 
   getHttpPort(String httpPort) {
     this.httpPort.value = httpPort;
+    encryptedHttpPort.value = EncryptData.encryptAES(httpPort);
     getQrData();
   }
 
   getErpPort(String erpPort) {
     this.erpPort.value = erpPort;
+    encryptedErpPort.value = EncryptData.encryptAES(erpPort);
     getQrData();
   }
 
