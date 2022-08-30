@@ -6,6 +6,7 @@ import 'package:axolon_container/controller/app%20controls/local_settings_contro
 import 'package:axolon_container/controller/ui%20controls/password_controller.dart';
 import 'package:axolon_container/model/connection_qr_model.dart';
 import 'package:axolon_container/model/connection_setting_model.dart';
+import 'package:axolon_container/utils/Encryption/encryptor.dart';
 import 'package:axolon_container/utils/constants/asset_paths.dart';
 import 'package:axolon_container/utils/constants/colors.dart';
 import 'package:axolon_container/utils/date_formatter.dart';
@@ -128,7 +129,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
   fillDataOnScan() async {
     var jsonData = connectionQrModelFromJson(widget.jsonData!);
     print(
-        'object issssssss+++++++++${utf8.decode(base64Url.decode(jsonData.connectionName!))}');
+        'object issssssss+++++++++${EncryptData.decryptAES(jsonData.connectionName)}');
   }
 
   prefillData() async {
@@ -594,11 +595,11 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                                           createNew();
                                         },
                                         child: CircleAvatar(
-                                          backgroundColor: AppColors.success,
+                                          backgroundColor: AppColors.primary,
                                           radius: width * 0.06,
                                           child: Icon(
                                             Icons.add,
-                                            color: AppColors.primary,
+                                            color: Colors.white,
                                           ),
                                         ),
                                       ),

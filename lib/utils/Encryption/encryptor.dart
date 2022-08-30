@@ -15,7 +15,7 @@ class EncryptData {
   }
 
   static decryptAES(text) {
-    final decrypted = encrypter.decrypt(text, iv: iv);
+    final decrypted = encrypter.decrypt64(text, iv: iv);
     print(decrypted);
     return decrypted;
   }
