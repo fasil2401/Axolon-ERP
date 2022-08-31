@@ -6,6 +6,8 @@ class ConnectionModelImpNames {
   static const String httpPort = 'httpPort';
   static const String erpPort = 'erpPort';
   static const String databaseName = 'databaseName';
+  static const String userName = 'userName';
+  static const String password = 'password';
   static const String tableName = 'connectionSetting';
 }
 
@@ -19,6 +21,8 @@ class ConnectionModel {
   String? httpPort;
   String? erpPort;
   String? databaseName;
+  String? userName;
+  String? password;
 
   ConnectionModel({
     this.connectionName,
@@ -27,6 +31,8 @@ class ConnectionModel {
     this.httpPort,
     this.erpPort,
     this.databaseName,
+    this.userName,
+    this.password,
   });
 
   Map<String, dynamic> toMap() {
@@ -37,6 +43,8 @@ class ConnectionModel {
       'httpPort': httpPort,
       'erpPort': erpPort,
       'databaseName': databaseName,
+      'userName': userName,
+      'password': password,
     };
   }
 
@@ -47,5 +55,7 @@ class ConnectionModel {
     this.httpPort = map['httpPort'];
     this.erpPort = map['erpPort'];
     this.databaseName = map['databaseName'];
+    this.userName = map['userName'];
+    this.password = map['password'];
   }
 }

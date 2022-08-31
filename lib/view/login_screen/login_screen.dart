@@ -210,7 +210,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           child: Obx(
                             () => ElevatedButton(
-                              onPressed: () {
+                              onPressed: () async{
                                 loginController.saveCredentials();
                               },
                               style: ElevatedButton.styleFrom(

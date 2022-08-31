@@ -20,6 +20,16 @@ class LocalSettingsController extends GetxController {
     // getTransferOut();
   }
 
+  updateLocalSettings(
+      {required String connectionName,
+      required String userName,
+      required String password}) async {
+    print('updating');
+    await DbHelper()
+        .updateConnectionSettings(connectionName, userName, password);
+    getLocalSettings();
+  }
+
   deleteTable() async {
     await DbHelper().deleteSettingsTable();
   }

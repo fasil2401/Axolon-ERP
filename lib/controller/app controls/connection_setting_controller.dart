@@ -54,6 +54,7 @@ class ConnectionSettingController extends GetxController {
 
   getWebPort(String webPort) {
     this.webPort.value = webPort;
+    encryptedWebPort.value = EncryptData.encryptAES(webPort);
     getQrData();
   }
 
@@ -88,11 +89,11 @@ class ConnectionSettingController extends GetxController {
   }
 
   getConfirmation(List<ConnectionModel> list) async {
-    list.forEach((element) {
+    for (var element in list) {
       if (element.connectionName == connectionName.value) {
         isLocalSettings.value = true;
       }
-    });
+    }
     if (isLocalSettings.value == false) {
       await localSettingsController.addLocalSettings(
         element: ConnectionModel(

@@ -11,6 +11,7 @@ import 'package:axolon_container/utils/constants/asset_paths.dart';
 import 'package:axolon_container/utils/constants/colors.dart';
 import 'package:axolon_container/utils/date_formatter.dart';
 import 'package:axolon_container/utils/shared_preferences/shared_preferneces.dart';
+import 'package:axolon_container/view/scanner/qr_scanner.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -49,7 +50,6 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
   void initState() {
     super.initState();
     print('dataaaaaaaaaaa${widget.jsonData}');
-    fillDataOnScan();
     getLocalSettings();
     prefillData();
   }
@@ -128,12 +128,52 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
 
   fillDataOnScan() async {
     var jsonData = connectionQrModelFromJson(widget.jsonData!);
-    print(
-        'object issssssss+++++++++${EncryptData.decryptAES(jsonData.connectionName)}');
+    print('object issssssss+++++++++${jsonData.connectionName}');
+    var connectionName = EncryptData.decryptAES(jsonData.connectionName);
+    print('connectionName issssssss+++++++++${connectionName}');
+    var serverIp = EncryptData.decryptAES(jsonData.serverIp);
+    var webPort = EncryptData.decryptAES(jsonData.webPort);
+    var databaseName = EncryptData.decryptAES(jsonData.databaseName);
+    var httpPort = EncryptData.decryptAES(jsonData.httpPort);
+    var erpPort = EncryptData.decryptAES(jsonData.erpPort);
+    print(connectionName);
+    print(serverIp);
+    print(webPort);
+    print(databaseName);
+    print(httpPort);
+    print(erpPort);
+    setState(() {
+      _connectiionNameController.text = connectionName;
+      _serverIpController.text = serverIp;
+      _webPortController.text = webPort;
+      _databaseNameController.text = databaseName;
+      _httpPortController.text = httpPort;
+      _erpPortController.text = erpPort;
+    });
+    // connectionSettingController.getConnectionName(connectionName);
+    // await connectionSettingController.getConnectionName(connectionName);
+    // await connectionSettingController.getServerIp(serverIp);
+    // await connectionSettingController.getWebPort(webPort);
+    // await connectionSettingController.getDatabaseName(databaseName);
+    // await connectionSettingController.getHttpPort(httpPort);
+    // await connectionSettingController.getErpPort(erpPort);
+  }
+
+  assignControllers() async {
+    await connectionSettingController
+        .getConnectionName(_connectiionNameController.text);
+    await connectionSettingController.getServerIp(_serverIpController.text);
+    await connectionSettingController.getWebPort(_webPortController.text);
+    await connectionSettingController
+        .getDatabaseName(_databaseNameController.text);
+    await connectionSettingController.getHttpPort(_httpPortController.text);
+    await connectionSettingController.getErpPort(_erpPortController.text);
   }
 
   prefillData() async {
-    if (widget.connectionModel != null) {
+    if (widget.jsonData != '') {
+      fillDataOnScan();
+    } else if (widget.connectionModel != null) {
       setState(() {
         _connectiionNameController.text =
             widget.connectionModel!.connectionName ?? '';
@@ -144,18 +184,18 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
         _httpPortController.text = widget.connectionModel!.httpPort ?? '';
         _erpPortController.text = widget.connectionModel!.erpPort ?? '';
       });
-      await connectionSettingController
-          .getConnectionName(widget.connectionModel!.connectionName!);
-      await connectionSettingController
-          .getServerIp(widget.connectionModel!.serverIp!);
-      await connectionSettingController
-          .getWebPort(widget.connectionModel!.webPort!);
-      await connectionSettingController
-          .getDatabaseName(widget.connectionModel!.databaseName!);
-      await connectionSettingController
-          .getHttpPort(widget.connectionModel!.httpPort!);
-      await connectionSettingController
-          .getErpPort(widget.connectionModel!.erpPort!);
+      // await connectionSettingController
+      //     .getConnectionName(widget.connectionModel!.connectionName!);
+      // await connectionSettingController
+      //     .getServerIp(widget.connectionModel!.serverIp!);
+      // await connectionSettingController
+      //     .getWebPort(widget.connectionModel!.webPort!);
+      // await connectionSettingController
+      //     .getDatabaseName(widget.connectionModel!.databaseName!);
+      // await connectionSettingController
+      //     .getHttpPort(widget.connectionModel!.httpPort!);
+      // await connectionSettingController
+      //     .getErpPort(widget.connectionModel!.erpPort!);
     } else {
       String connectionName =
           await UserSimplePreferences.getConnectionName() ?? '';
@@ -172,16 +212,12 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
         _httpPortController.text = httpPort;
         _erpPortController.text = erpPort;
       });
-      await connectionSettingController.getConnectionName(connectionName);
-      await connectionSettingController.getServerIp(serverIp);
-      await connectionSettingController.getWebPort(webPort);
-      await connectionSettingController.getDatabaseName(databaseName);
-      await connectionSettingController.getHttpPort(httpPort);
-      await connectionSettingController.getErpPort(erpPort);
-    }
-    if (widget.jsonData != '') {
-      // var jsonData = json.decode(widget.jsonData!);
-      print('dataaaaaaaaaaa${widget.jsonData}');
+      // await connectionSettingController.getConnectionName(connectionName);
+      // await connectionSettingController.getServerIp(serverIp);
+      // await connectionSettingController.getWebPort(webPort);
+      // await connectionSettingController.getDatabaseName(databaseName);
+      // await connectionSettingController.getHttpPort(httpPort);
+      // await connectionSettingController.getErpPort(erpPort);
     }
   }
 
@@ -194,17 +230,18 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
       _httpPortController.text = '';
       _erpPortController.text = '';
     });
-    await connectionSettingController.getConnectionName('');
-    await connectionSettingController.getServerIp('');
-    await connectionSettingController.getWebPort('');
-    await connectionSettingController.getDatabaseName('');
-    await connectionSettingController.getHttpPort('');
-    await connectionSettingController.getErpPort('');
+    // await connectionSettingController.getConnectionName('');
+    // await connectionSettingController.getServerIp('');
+    // await connectionSettingController.getWebPort('');
+    // await connectionSettingController.getDatabaseName('');
+    // await connectionSettingController.getHttpPort('');
+    // await connectionSettingController.getErpPort('');
   }
 
   @override
   Widget build(BuildContext context) {
     print(settingsList);
+
     final double width = MediaQuery.of(context).size.width;
     final double height = MediaQuery.of(context).size.height;
     return Scaffold(
@@ -249,6 +286,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                 children: [
                   Container(
                     width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
                     decoration: const BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.only(
@@ -262,7 +300,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                           child: SingleChildScrollView(
                             child: Column(
                               children: [
-                                SizedBox(height: height * 0.035),
+                                SizedBox(height: height * 0.03),
 
                                 Center(
                                   child: SizedBox(
@@ -291,7 +329,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                                     ),
                                     Container(
                                       margin: const EdgeInsets.symmetric(
-                                          horizontal: 25, vertical: 30),
+                                          horizontal: 25, vertical: 20),
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 5),
                                       // height: height * 0.5,
@@ -384,7 +422,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                                               ),
                                               suffix: GestureDetector(
                                                 onTap: () {
-                                                  // Get.to(() => QRViewExample());
+                                                  Get.to(() => QRViewExample());
                                                 },
                                                 child: const Icon(
                                                   Icons.qr_code_rounded,
@@ -588,7 +626,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                                       ),
                                     ),
                                     Positioned(
-                                      top: height * 0.01,
+                                      top: height * 0.0,
                                       right: width * 0.065,
                                       child: GestureDetector(
                                         onTap: () {
@@ -607,9 +645,9 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                                   ],
                                 ),
 
-                                SizedBox(
-                                  height: height * 0.05,
-                                ),
+                                // SizedBox(
+                                //   height: height * 0.02,
+                                // ),
                                 // Container(
                                 //   margin: const EdgeInsets.symmetric(horizontal: 25),
                                 //   height: height * 0.055,
@@ -678,6 +716,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                                         child: ElevatedButton(
                                           onPressed: () async {
                                             await setData();
+                                            // await assignControllers();
                                             connectionSettingController
                                                 .saveSettings(settingsList);
                                           },
@@ -710,6 +749,8 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                                   ),
                                   child: ElevatedButton(
                                     onPressed: () async {
+                                      // await assignControllers();
+                                      await setData();
                                       takeScreenShot();
                                     },
                                     style: ElevatedButton.styleFrom(
