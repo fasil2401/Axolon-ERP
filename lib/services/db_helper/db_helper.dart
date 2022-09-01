@@ -77,6 +77,26 @@ class DbHelper {
     ''', [userName, password, connectionName]);
   }
 
+  Future<int> updateFields({
+    required String connectionName,
+    required String serverIp,
+    required String webPort,
+    required String httpPort,
+    required String erpPort,
+    required String databaseName,
+  }) async {
+    Database? db = await DbHelper._database;
+    return await db!.rawUpdate('''
+    UPDATE ${ConnectionModelImpNames.tableName}
+    SET ${ConnectionModelImpNames.serverIp} = ?, 
+    ${ConnectionModelImpNames.webPort} = ?, 
+    ${ConnectionModelImpNames.httpPort} = ?, 
+    ${ConnectionModelImpNames.erpPort} = ?, 
+    ${ConnectionModelImpNames.databaseName} = ?
+    WHERE ${ConnectionModelImpNames.connectionName} = ?
+    ''', [serverIp, webPort, httpPort, erpPort, databaseName, connectionName]);
+  }
+
   deleteSettingsTable() async {
     Database? db = await DbHelper._database;
     await db!.delete(ConnectionModelImpNames.tableName);

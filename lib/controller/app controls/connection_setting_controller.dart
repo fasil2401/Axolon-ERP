@@ -106,6 +106,13 @@ class ConnectionSettingController extends GetxController {
       );
       goToLogin();
     } else {
+      await localSettingsController.updateFields(
+          connectionName: connectionName.value,
+          serverIp: serverIp.value,
+          webPort: webPort.value,
+          httpPort: httpPort.value,
+          erpPort: erpPort.value,
+          databaseName: databaseName.value);
       goToLogin();
     }
     // if (!isLocalSettings.value) {

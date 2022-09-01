@@ -116,6 +116,8 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
       _httpPortController.text = settings.httpPort!;
       _erpPortController.text = settings.erpPort!;
     });
+    await UserSimplePreferences.setUsername(settings.userName ?? '');
+    await UserSimplePreferences.setUserPassword(settings.password ?? '');
     await connectionSettingController
         .getConnectionName(settings.connectionName!);
     await connectionSettingController.getServerIp(settings.serverIp!);
@@ -150,13 +152,6 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
       _httpPortController.text = httpPort;
       _erpPortController.text = erpPort;
     });
-    // connectionSettingController.getConnectionName(connectionName);
-    // await connectionSettingController.getConnectionName(connectionName);
-    // await connectionSettingController.getServerIp(serverIp);
-    // await connectionSettingController.getWebPort(webPort);
-    // await connectionSettingController.getDatabaseName(databaseName);
-    // await connectionSettingController.getHttpPort(httpPort);
-    // await connectionSettingController.getErpPort(erpPort);
   }
 
   assignControllers() async {
@@ -184,18 +179,6 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
         _httpPortController.text = widget.connectionModel!.httpPort ?? '';
         _erpPortController.text = widget.connectionModel!.erpPort ?? '';
       });
-      // await connectionSettingController
-      //     .getConnectionName(widget.connectionModel!.connectionName!);
-      // await connectionSettingController
-      //     .getServerIp(widget.connectionModel!.serverIp!);
-      // await connectionSettingController
-      //     .getWebPort(widget.connectionModel!.webPort!);
-      // await connectionSettingController
-      //     .getDatabaseName(widget.connectionModel!.databaseName!);
-      // await connectionSettingController
-      //     .getHttpPort(widget.connectionModel!.httpPort!);
-      // await connectionSettingController
-      //     .getErpPort(widget.connectionModel!.erpPort!);
     } else {
       String connectionName =
           await UserSimplePreferences.getConnectionName() ?? '';
@@ -212,12 +195,6 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
         _httpPortController.text = httpPort;
         _erpPortController.text = erpPort;
       });
-      // await connectionSettingController.getConnectionName(connectionName);
-      // await connectionSettingController.getServerIp(serverIp);
-      // await connectionSettingController.getWebPort(webPort);
-      // await connectionSettingController.getDatabaseName(databaseName);
-      // await connectionSettingController.getHttpPort(httpPort);
-      // await connectionSettingController.getErpPort(erpPort);
     }
   }
 
@@ -230,12 +207,6 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
       _httpPortController.text = '';
       _erpPortController.text = '';
     });
-    // await connectionSettingController.getConnectionName('');
-    // await connectionSettingController.getServerIp('');
-    // await connectionSettingController.getWebPort('');
-    // await connectionSettingController.getDatabaseName('');
-    // await connectionSettingController.getHttpPort('');
-    // await connectionSettingController.getErpPort('');
   }
 
   @override

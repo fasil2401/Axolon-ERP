@@ -30,6 +30,24 @@ class LocalSettingsController extends GetxController {
     getLocalSettings();
   }
 
+  updateFields(
+      {required String connectionName,
+      required String serverIp,
+      required String webPort,
+      required String httpPort,
+      required String erpPort,
+      required String databaseName}) async {
+    print('updating');
+    await DbHelper().updateFields(
+        connectionName: connectionName,
+        serverIp: serverIp,
+        webPort: webPort,
+        httpPort: httpPort,
+        erpPort: erpPort,
+        databaseName: databaseName);
+    getLocalSettings();
+  }
+
   deleteTable() async {
     await DbHelper().deleteSettingsTable();
   }

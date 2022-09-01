@@ -21,6 +21,8 @@ final packageInfoCOntroller = Get.put(PackageInfoController());
 
 class _HomeScreenState extends State<HomeScreen> {
   bool isLoading = true;
+  bool isReloading = false;
+  int position = 1;
   WebViewController? _webViewController;
   final localSettingsController = Get.put(LocalSettingsController());
   var settingsList = [];
@@ -255,15 +257,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                         await UserSimplePreferences.setHttpPort(
                                             httpPort);
                                         Get.back();
-                                        setState(() {
-                                          isLoading = true;
-                                        });
                                         await _webViewController!.loadUrl(
-                                            'http://${serverIp}:${erpPort}/User/mobilelogin?userid=${username}&passwordhash=${password}&dbName=${databaseName}&port=${httpPort}&iscall=1');
-
-                                        setState(() {
-                                          isLoading = false;
-                                        });
+                                          'http://${serverIp}:${erpPort}/User/mobilelogin?userid=${username}&passwordhash=${password}&dbName=${databaseName}&port=${httpPort}&iscall=1',
+                                        );
                                       },
                                       child: Padding(
                                         padding: const EdgeInsets.symmetric(
@@ -383,139 +379,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
-                // Padding(
-                //   padding: const EdgeInsets.all(8.0),
-                //   child: Card(
-                //     elevation: 5,
-                //     shape: RoundedRectangleBorder(
-                //       borderRadius: BorderRadius.circular(10),
-                //     ),
-                //     color: AppColors.mutedBlueColor,
-                //     child: ListTile(
-                //       dense: true,
-                //       title: Text(
-                //         'Connection Settings',
-                //         style: TextStyle(
-                //           fontSize: 16,
-                //           color: AppColors.primary,
-                //           fontWeight: FontWeight.w400,
-                //         ),
-                //       ),
-                //       trailing: Icon(
-                //         Icons.settings_suggest_outlined,
-                //         color: AppColors.primary,
-                //       ),
-                //     ),
-                //   ),
-                // ),
-                // settingsList.isNotEmpty
-                //     ? ListView.separated(
-                //         shrinkWrap: true,
-                //         itemCount: settingsList.length,
-                //         itemBuilder: (context, index) {
-                //           return GestureDetector(
-                //             onTap: () {
-                //               Get.offAll(() => ConnectionScreen(
-                //                     connectionModel: settingsList[index],
-                //                   ));
-                //             },
-                //             child: Padding(
-                //               padding: const EdgeInsets.symmetric(horizontal: 8),
-                //               child: Card(
-                //                 elevation: 3,
-                //                 shape: RoundedRectangleBorder(
-                //                   borderRadius: BorderRadius.circular(10),
-                //                 ),
-                //                 child: ListTile(
-                //                   dense: true,
-                //                   title: Row(
-                //                     children: [
-                //                       Icon(
-                //                         Icons.settings_outlined,
-                //                         color: AppColors.primary,
-                //                         size: 18,
-                //                       ),
-                //                       SizedBox(
-                //                         width: 6,
-                //                       ),
-                //                       Text(
-                //                         settingsList[index].connectionName!,
-                //                         style: TextStyle(
-                //                           fontSize: 16,
-                //                           color: AppColors.primary,
-                //                           fontWeight: FontWeight.w400,
-                //                         ),
-                //                       ),
-                //                     ],
-                //                   ),
-                //                 ),
-                //               ),
-                //             ),
-                //           );
-                //         },
-                //         separatorBuilder: (context, index) => SizedBox(
-                //           height: 2,
-                //         ),
-                //       )
-                //     : Padding(
-                //         padding: const EdgeInsets.symmetric(horizontal: 8),
-                //         child: Card(
-                //           elevation: 3,
-                //           shape: RoundedRectangleBorder(
-                //             borderRadius: BorderRadius.circular(10),
-                //           ),
-                //           child: ListTile(
-                //             dense: true,
-                //             title: Row(
-                //               children: [
-                //                 SizedBox(
-                //                   width: height * 0.05,
-                //                   height: height * 0.05,
-                //                   child: CircularProgressIndicator(
-                //                     strokeWidth: 1.5,
-                //                     valueColor: AlwaysStoppedAnimation(
-                //                       AppColors.primary,
-                //                     ),
-                //                   ),
-                //                 ),
-                //                 SizedBox(
-                //                   width: 6,
-                //                 ),
-                //                 Text(
-                //                   'Please wait...',
-                //                   style: TextStyle(
-                //                     fontSize: 16,
-                //                     color: AppColors.primary,
-                //                     fontWeight: FontWeight.w400,
-                //                   ),
-                //                 ),
-                //               ],
-                //             ),
-                //           ),
-                //         ),
-                //       ),
-                // Padding(
-                //   padding: const EdgeInsets.only(bottom: 10),
-                //   child: Align(
-                //     alignment: Alignment.bottomCenter,
-                //     child: Obx(() {
-                //       // print(versionControl.version);
-                //       return Text(
-                //         'version :${packageInfoCOntroller.version.value}',
-                //         style: TextStyle(
-                //           color: AppColors.mutedColor,
-                //           fontSize: 12,
-                //         ),
-                //       );
-                //     }),
-                //   ),
-                // ),
               ],
             ),
           ),
         ),
-        body: Stack(
-          children: <Widget>[
+        body: IndexedStack(
+          index: position,
+          children: [
             WebView(
               key: _key,
               initialUrl:
@@ -532,21 +402,36 @@ class _HomeScreenState extends State<HomeScreen> {
                   () {
                     print(url);
                     isLoading = false;
+                    // isReloading = false;
+                    position = 0;
                   },
                 );
               },
+              onPageStarted: (url) => setState(() {
+                isLoading = true;
+                position = 1;
+              }),
             ),
-            isLoading
-                ? Container(
-                    height: height,
-                    width: width,
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  )
-                : Stack(),
+            Container(
+              height: height,
+              width: width,
+              child: Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.primary,
+                ),
+              ),
+            )
+            // isLoading
+            //     ? Container(
+            //         height: height,
+            //         width: width,
+            //         child: Center(
+            //           child: CircularProgressIndicator(
+            //             color: AppColors.primary,
+            //           ),
+            //         ),
+            //       )
+            //     : Stack(),
           ],
         ),
       ),
