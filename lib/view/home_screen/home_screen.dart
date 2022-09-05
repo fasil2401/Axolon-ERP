@@ -91,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
           backgroundColor: AppColors.primary,
           centerTitle: true,
           title: SizedBox(
-            width: width * 0.28,
+            width: width * 0.34,
             child: Image.asset(
               Images.logo,
               fit: BoxFit.contain,
