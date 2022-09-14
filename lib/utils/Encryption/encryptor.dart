@@ -16,7 +16,6 @@ class EncryptData {
 
   static decryptAES(text) {
     final decrypted = encrypter.decrypt64(text, iv: iv);
-    print('++++++++>>>>>>>>+++++++${decrypted.runtimeType}');
     return decrypted.toString();
   }
   // static Encrypted? encrypted;
