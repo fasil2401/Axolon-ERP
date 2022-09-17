@@ -13,7 +13,6 @@ class ConnectionModelImpNames {
 
 
 
-
 class ConnectionModel {
   String? connectionName;
   String? serverIp;
